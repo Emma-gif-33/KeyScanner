@@ -1,0 +1,13 @@
+---
+sourceLocationPrefix: C:\Proyectos\keyScanner
+baselineLinesOfCode: 2415
+unicodeNewlines: false
+columnKind: utf32
+primaryLanguage: python
+creationMetadata:
+  sha: 809b3acb133699f7d86421a4956dd9b04dcafc64
+  cliVersion: 2.27.4
+  creationTime: 2026-11-17T18:57:39.242216700Z
+overlayBaseDatabase: false
+overlayDatabase: false
+finalised: true
