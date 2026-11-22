@@ -1,7 +1,6 @@
 import os
 import shutil
 import tempfile
-import pytest
 from app.services.secret_scanner import (
     calculate_shannon_entropy,
     mask_secret,

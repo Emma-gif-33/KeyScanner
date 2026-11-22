@@ -1,5 +1,4 @@
 import pytest
-import httpx
 from app.main import app
 from app.core.database import engine
 

@@ -1,3 +1,4 @@
+import logging
 import os
 import uuid
 from datetime import datetime, timezone
@@ -10,6 +11,8 @@ from app.models.finding import DependencyFinding, SecretFinding
 from app.models.scan import Scan
 from app.services.dependency_scanner import scan_directory_for_vulnerabilities
 from app.services.secret_scanner import scan_directory_for_secrets
+
+logger = logging.getLogger(__name__)
 
 SEVERITY_ORDER = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1, "NONE": 0}
 
@@ -137,5 +140,6 @@ async def run_full_scan_pipeline(scan_id: uuid.UUID) -> None:
                     scan.error_message = str(e)
                     scan.finished_at = datetime.now(timezone.utc)
                     await db.commit()
-            except Exception:
-                pass
+            except Exception as update_err:
+                # Log defensivo ante fallo secundario al persistir estado FAILED
+                logger.error("Failed to update scan %s status to FAILED: %s", scan_id, update_err)

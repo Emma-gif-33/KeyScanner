@@ -144,9 +144,10 @@ HEX_COMMIT_REGEX = re.compile(r"^[0-9a-f]{40}$", re.I)
 def scan_file_content(file_path: str, relative_path: str) -> List[SecretFindingItem]:
     """Analyze a single file for exposed secrets via RegEx and Shannon entropy."""
     findings: List[SecretFindingItem] = []
+    canonical_file = os.path.abspath(file_path)
 
     try:
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(canonical_file, "r", encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
     except Exception:
         return findings
@@ -218,8 +219,12 @@ def scan_file_content(file_path: str, relative_path: str) -> List[SecretFindingI
 def scan_directory_for_secrets(base_dir: str) -> List[SecretFindingItem]:
     """Recursively walk directory and scan code files for secrets."""
     all_findings: List[SecretFindingItem] = []
+    canonical_base = os.path.abspath(str(base_dir))
 
-    for root, dirs, files in os.walk(base_dir):
+    if not os.path.exists(canonical_base) or not os.path.isdir(canonical_base):
+        return all_findings
+
+    for root, dirs, files in os.walk(canonical_base):
         dirs[:] = [d for d in dirs if d not in EXCLUDED_DIRECTORIES and not d.startswith(".")]
 
         for filename in files:
@@ -227,16 +232,18 @@ def scan_directory_for_secrets(base_dir: str) -> List[SecretFindingItem]:
             if ext in EXCLUDED_EXTENSIONS:
                 continue
 
-            full_path = os.path.join(root, filename)
+            safe_full_path = os.path.abspath(os.path.join(root, filename))
+            if not safe_full_path.startswith(canonical_base + os.sep):
+                continue
 
             try:
-                if os.path.getsize(full_path) > MAX_FILE_SIZE_BYTES:
+                if os.path.getsize(safe_full_path) > MAX_FILE_SIZE_BYTES:
                     continue
             except OSError:
                 continue
 
-            relative_path = os.path.relpath(full_path, base_dir).replace("\\", "/")
-            file_findings = scan_file_content(full_path, relative_path)
+            relative_path = os.path.relpath(safe_full_path, canonical_base).replace("\\", "/")
+            file_findings = scan_file_content(safe_full_path, relative_path)
             all_findings.extend(file_findings)
 
     return all_findings

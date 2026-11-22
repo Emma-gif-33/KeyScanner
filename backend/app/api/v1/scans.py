@@ -252,12 +252,21 @@ async def execute_secret_scan(
             detail="Scan not found or access denied."
         )
 
-    scan_workspace = os.path.join(TEMP_SCANS_BASE_DIR, str(scan_id), "extracted")
-    if not os.path.exists(scan_workspace):
+    scan_id_str = str(scan_id)
+    safe_workspace = os.path.abspath(os.path.join(TEMP_SCANS_BASE_DIR, scan_id_str, "extracted"))
+    if not safe_workspace.startswith(os.path.abspath(TEMP_SCANS_BASE_DIR) + os.sep):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Illegal scan workspace path."
+        )
+
+    if not os.path.exists(safe_workspace):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Extracted workspace files not found for this scan."
         )
+
+    scan_workspace = safe_workspace
 
     raw_findings = scan_directory_for_secrets(scan_workspace)
 
@@ -340,12 +349,21 @@ async def execute_dependency_scan(
             detail="Scan not found or access denied."
         )
 
-    scan_workspace = os.path.join(TEMP_SCANS_BASE_DIR, str(scan_id), "extracted")
-    if not os.path.exists(scan_workspace):
+    scan_id_str = str(scan_id)
+    safe_workspace = os.path.abspath(os.path.join(TEMP_SCANS_BASE_DIR, scan_id_str, "extracted"))
+    if not safe_workspace.startswith(os.path.abspath(TEMP_SCANS_BASE_DIR) + os.sep):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Illegal scan workspace path."
+        )
+
+    if not os.path.exists(safe_workspace):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Extracted workspace files not found for this scan."
         )
+
+    scan_workspace = safe_workspace
 
     raw_findings = await scan_directory_for_vulnerabilities(scan_workspace)
 
