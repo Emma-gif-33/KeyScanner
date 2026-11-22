@@ -1,5 +1,4 @@
 import io
-import os
 import uuid
 import zipfile
 import pytest
@@ -88,6 +87,7 @@ async def test_scans_ingestion_and_secret_scanning_flow():
                 assert stored_deps.status_code == 200
                 assert len(stored_deps.json()) == len(dep_findings)
         except Exception:
+            # La consulta externa a OSV puede omitirse deliberadamente si el entorno de test no tiene conexión
             pass  
 
         updated_scan = await client.get(f"/api/v1/scans/{scan_id}", headers=headers)

@@ -85,7 +85,7 @@ def parse_package_json(content: str, manifest_path: str) -> List[PackageItem]:
     for name, raw_version in all_deps.items():
         if not isinstance(raw_version, str):
             continue
-        clean_version = re.sub(r"^[\^~>=<v=]+", "", raw_version.strip())
+        clean_version = re.sub(r"^[\^~>=<v]+", "", raw_version.strip())
         if not clean_version or clean_version == "*" or "/" in clean_version or ":" in clean_version:
             continue
 
@@ -140,26 +140,33 @@ def parse_package_lock_json(content: str, manifest_path: str) -> List[PackageIte
 def find_manifest_packages(base_dir: str) -> List[PackageItem]:
     """Find all supported package manifests in workspace and parse them."""
     collected_packages: List[PackageItem] = []
+    canonical_base = os.path.abspath(str(base_dir))
 
-    for root, dirs, files in os.walk(base_dir):
+    if not os.path.exists(canonical_base) or not os.path.isdir(canonical_base):
+        return collected_packages
+
+    for root, dirs, files in os.walk(canonical_base):
         dirs[:] = [d for d in dirs if d not in EXCLUDED_DIRECTORIES and not d.startswith(".")]
 
         has_lock = PACKAGE_LOCK_JSON in files
         for filename in files:
-            full_path = os.path.join(root, filename)
-            rel_path = os.path.relpath(full_path, base_dir).replace("\\", "/")
+            safe_full_path = os.path.abspath(os.path.join(root, filename))
+            if not safe_full_path.startswith(canonical_base + os.sep):
+                continue
+
+            rel_path = os.path.relpath(safe_full_path, canonical_base).replace("\\", "/")
 
             try:
                 if filename in REQUIREMENTS_FILES or filename.endswith(".requirements.txt"):
-                    with open(full_path, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(safe_full_path, "r", encoding="utf-8", errors="ignore") as f:
                         collected_packages.extend(parse_requirements_txt(f.read(), rel_path))
 
                 elif filename == PACKAGE_LOCK_JSON:
-                    with open(full_path, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(safe_full_path, "r", encoding="utf-8", errors="ignore") as f:
                         collected_packages.extend(parse_package_lock_json(f.read(), rel_path))
 
                 elif filename == PACKAGE_JSON and not has_lock:
-                    with open(full_path, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(safe_full_path, "r", encoding="utf-8", errors="ignore") as f:
                         collected_packages.extend(parse_package_json(f.read(), rel_path))
             except Exception:
                 continue

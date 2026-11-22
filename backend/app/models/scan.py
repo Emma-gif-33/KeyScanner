@@ -1,14 +1,10 @@
 import uuid
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
-
-if TYPE_CHECKING:
-    from app.models.user import User
-    from app.models.finding import DependencyFinding, SecretFinding
 
 
 class Scan(Base):

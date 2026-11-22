@@ -5,6 +5,7 @@ import shutil
 import zipfile
 from typing import List
 from fastapi import HTTPException, status
+from app.core.config import TEMP_SCANS_DIR
 
 MAX_UPLOAD_SIZE = 50 * 1024 * 1024       # 50 MB max zip upload
 MAX_UNCOMPRESSED_SIZE = 250 * 1024 * 1024 # 250 MB max extracted content
@@ -89,13 +90,15 @@ def extract_zip_safely(content: bytes, destination_dir: str) -> List[str]:
             if member.is_dir():
                 continue
 
-            target_path = os.path.abspath(os.path.join(canonical_dest, member.filename))
-            if not target_path.startswith(canonical_dest + os.sep) and target_path != canonical_dest:
+            try:
+                target_path_obj = resolve_safe_path(canonical_dest, member.filename)
+            except (PermissionError, ValueError):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Illegal path traversal attempt."
                 )
 
+            target_path = str(target_path_obj)
             os.makedirs(os.path.dirname(target_path), exist_ok=True)
             with zf.open(member) as source, open(target_path, "wb") as target:
                 shutil.copyfileobj(source, target)
@@ -107,6 +110,9 @@ def extract_zip_safely(content: bytes, destination_dir: str) -> List[str]:
 
 
 def cleanup_directory(path: str) -> None:
-    """Safely remove a directory and its contents if it exists."""
-    if os.path.exists(path):
-        shutil.rmtree(path, ignore_errors=True)
+    """Safely remove a directory and its contents only if confined within TEMP_SCANS_DIR."""
+    canonical_base = os.path.abspath(TEMP_SCANS_DIR)
+    safe_path = os.path.abspath(path)
+    if safe_path.startswith(canonical_base + os.sep) and safe_path != canonical_base:
+        if os.path.exists(safe_path):
+            shutil.rmtree(safe_path, ignore_errors=True)
