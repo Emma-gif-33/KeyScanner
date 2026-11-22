@@ -19,20 +19,39 @@ Proyecto desarrollado para la materia de **Seguridad Informática** (UP Chiapas)
 
 ## Puesta en Marcha
 
-### 1. Iniciar Base de Datos (PostgreSQL)
-Asegúrate de tener Docker Desktop activo y ejecuta:
+### Opción A: Despliegue Completo con Docker Compose (Recomendado)
+Levanta toda la infraestructura (PostgreSQL + Backend FastAPI + Frontend React Nginx) en una sola red interna de contenedores:
 ```bash
-docker compose up -d
+docker compose up --build -d
+```
+- **Aplicación Web Frontend**: [http://localhost:3000](http://localhost:3000)
+- **API Backend & Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Base de Datos PostgreSQL**: `localhost:5432`
+
+---
+
+### Opción B: Ejecución Local para Desarrollo
+
+#### 1. Iniciar Base de Datos (PostgreSQL)
+```bash
+docker compose up postgres -d
 ```
 
-### 2. Iniciar el Servidor Backend
+#### 2. Iniciar el Servidor Backend (FastAPI)
 ```powershell
 $env:PYTHONPATH="backend"
 .\.venv\Scripts\uvicorn app.main:app --reload
 ```
-- **Documentación Interactiva Swagger**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Documentación ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+- **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
 - **Health Check**: [http://localhost:8000/health](http://localhost:8000/health)
+
+#### 3. Iniciar el Frontend (React TS + Tailwind + Vite)
+En otra terminal:
+```powershell
+cd frontend
+npm run dev
+```
+- **Frontend Local**: [http://localhost:3000](http://localhost:3000) (proxy automático a backend en `:8000`)
 
 ---
 

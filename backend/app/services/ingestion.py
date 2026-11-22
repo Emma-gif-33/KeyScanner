@@ -6,6 +6,7 @@ import zipfile
 from typing import List
 from fastapi import HTTPException, status
 from app.core.config import TEMP_SCANS_DIR
+from app.core.path_safety import resolve_safe_path
 
 MAX_UPLOAD_SIZE = 50 * 1024 * 1024       # 50 MB max zip upload
 MAX_UNCOMPRESSED_SIZE = 250 * 1024 * 1024 # 250 MB max extracted content
@@ -91,14 +92,19 @@ def extract_zip_safely(content: bytes, destination_dir: str) -> List[str]:
                 continue
 
             try:
-                target_path_obj = resolve_safe_path(canonical_dest, member.filename)
+                target_path = resolve_safe_path(canonical_dest, member.filename)
             except (PermissionError, ValueError):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Illegal path traversal attempt."
                 )
 
-            target_path = str(target_path_obj)
+            if not target_path.startswith(canonical_dest + os.sep) and target_path != canonical_dest:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Illegal path traversal attempt."
+                )
+
             os.makedirs(os.path.dirname(target_path), exist_ok=True)
             with zf.open(member) as source, open(target_path, "wb") as target:
                 shutil.copyfileobj(source, target)
