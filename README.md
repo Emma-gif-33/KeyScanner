@@ -73,8 +73,16 @@ Para facilitar las pruebas sin necesidad de crear archivos manuales, se han gene
 
 ## Ejecución de Pruebas Automatizadas
 
-Para correr toda la suite de pruebas (14 tests de integración y unitarios):
+Para correr toda la suite de pruebas (17 tests de integración y unitarios):
 ```powershell
 $env:PYTHONPATH="backend"
 .\.venv\Scripts\pytest.exe backend\tests -v
 ```
+
+---
+
+## Licencia
+
+Este proyecto (Backend y Frontend) se distribuye bajo la **Licencia MIT**. Consulta el archivo `LICENSE` o [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT) para más detalles.
+
+**Autora**: Emma Reyes Preciado — Universidad Politécnica de Chiapas (2026).

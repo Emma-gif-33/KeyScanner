@@ -14,6 +14,10 @@ app = FastAPI(
     title=settings.APP_NAME,
     version="1.0.0",
     description="API RESTful de análisis para escáner de claves secretas y dependencias vulnerables",
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
     docs_url="/docs",
     redoc_url="/redoc",
 )
