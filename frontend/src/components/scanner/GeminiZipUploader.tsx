@@ -148,9 +148,6 @@ export const GeminiZipUploader: React.FC<GeminiZipUploaderProps> = ({
                 AWS, GCP & GitHub Secrets
               </span>
               <span className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-navy-950/80 border border-navy-800 text-slate-300">
-                Entropía de Shannon
-              </span>
-              <span className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-navy-950/80 border border-navy-800 text-slate-300">
                 OSV.dev / PyPI & npm CVEs
               </span>
             </div>

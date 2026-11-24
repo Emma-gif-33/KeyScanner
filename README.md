@@ -57,17 +57,25 @@ npm run dev
 
 ## Proyectos de Prueba Listos (Directorio `samples/`)
 
-Para facilitar las pruebas sin necesidad de crear archivos manuales, se han generado 3 archivos ZIP listos para subir:
+Para facilitar las pruebas sin necesidad de crear archivos manuales, se han generado 6 archivos ZIP con distintas configuraciones listos para subir:
 
-1. **`samples/demo_node_project.zip`** (Node.js):
-   - Dependencias vulnerables reales (`lodash: 4.17.15`, `axios: 0.21.1`).
-   - Secretos expuestos en `.env` (AWS Access Key, Slack Webhook, Database URI).
-   - Token de GitHub en `src/index.js`.
-2. **`samples/demo_python_project.zip`** (Python):
-   - Dependencias vulnerables reales (`requests==2.20.0`, `urllib3==1.24.1`).
-   - Secretos en `config.py` (Google Cloud API Key, Stripe Live Key, Entropía de Shannon).
-3. **`samples/demo_clean_project.zip`** (Proyecto Limpio):
-   - Proyecto sin secretos y con dependencias actualizadas (Riesgo: `NONE`, 0 hallazgos).
+1. **`samples/demo_node_project.zip`** (Node.js — Mixto):
+   - Dependencias vulnerables (`lodash: 4.17.15`, `axios: 0.21.1`, `express: 4.16.1`).
+   - Secretos expuestos en `.env` (AWS Access Key, Slack Webhook, PostgreSQL URI) y GitHub PAT en `src/index.js`.
+2. **`samples/demo_python_project.zip`** (Python — Mixto):
+   - Dependencias vulnerables (`requests==2.20.0`, `urllib3==1.24.1`, `jinja2==2.10.1`).
+   - Secretos en `config.py` (Google Cloud API Key, Stripe Live Key, AWS Key y Entropía de Shannon).
+3. **`samples/demo_clean_project.zip`** (Proyecto Limpio — Riesgo `NONE`):
+   - Proyecto sin secretos y con dependencias actualizadas (0 hallazgos).
+4. **`samples/demo_fullstack_monorepo.zip`** (Monorepo Full-Stack Multi-Ecosistema):
+   - Combina `backend/requirements.txt` (`django==3.1.1`, `pyyaml==5.3`, `cryptography==3.2`) y `frontend/package-lock.json` v2 (`jsonwebtoken: 8.5.1`, `minimist: 1.2.5`).
+   - Incluye llave privada RSA (`id_rsa_deploy.pem`), URI de MongoDB Atlas (`mongodb+srv://`), Slack Bot Token (`xoxb-...`), AWS Secret Key y Stripe Test Key.
+5. **`samples/demo_devops_keys_only.zip`** (Infraestructura DevOps — Solo Secretos, 0 CVEs):
+   - Archivos de infraestructura (`terraform.tfvars`, `db_backup.sh`, llave privada `deploy_ed25519`, `stripe_sandbox.env`).
+   - Contiene 12 secretos distribuidos en las 4 severidades (`CRITICAL`, `HIGH`, `MEDIUM` y `LOW`) y 0 dependencias vulnerables.
+6. **`samples/demo_legacy_cves_only.zip`** (Deuda Técnica / Supply Chain — Solo CVEs, 0 Secretos):
+   - Código fuente limpio que usa `os.environ.get()` correctamente (0 secretos filtrados).
+   - Manifiestos con 8 paquetes legacy altamente vulnerables en PyPI y npm (`flask==0.12.2`, `pillow==8.1.0`, `paramiko==2.4.1`, `sqlalchemy==1.3.0`, `semver: 5.7.1`, `socket.io: 2.3.0`).
 
 ---
 
