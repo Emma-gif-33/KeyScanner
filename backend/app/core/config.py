@@ -1,4 +1,5 @@
 import os
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -19,6 +20,17 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = "postgresql+asyncpg://keyscanner_user:keyscanner_password@localhost:5432/keyscanner_db"
     SYNC_DATABASE_URL: str = "postgresql://keyscanner_user:keyscanner_password@localhost:5432/keyscanner_db"
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def ensure_asyncpg_scheme(cls, v: str) -> str:
+        """Convierte automáticamente postgres:// o postgresql:// (ej. Railway) a postgresql+asyncpg://."""
+        if isinstance(v, str):
+            if v.startswith("postgres://"):
+                return v.replace("postgres://", "postgresql+asyncpg://", 1)
+            if v.startswith("postgresql://"):
+                return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
 
     SECRET_KEY: str = "secret_key_keyscanner_dev_only_change_in_production_min32chars"
     ALGORITHM: str = "HS256"

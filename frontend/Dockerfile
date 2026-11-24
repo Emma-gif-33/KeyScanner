@@ -9,6 +9,8 @@ RUN npm ci
 
 # Copy source code and build
 COPY . .
+ARG VITE_API_BASE_URL=/api/v1
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
 # Stage 2: Serve with Nginx
@@ -25,4 +27,4 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["sh", "-c", "sed -i \"s/listen 80;/listen ${PORT:-80};/g\" /etc/nginx/conf.d/default.conf && sed -i \"s|http://backend:8000|${BACKEND_URL:-http://backend:8000}|g\" /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
