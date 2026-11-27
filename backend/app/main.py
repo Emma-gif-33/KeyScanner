@@ -1,5 +1,5 @@
 import logging
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,13 +22,31 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Configuración estricta de CORS conforme a OWASP A05:2021 (Security Misconfiguration / CWE-942)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
+    expose_headers=["Content-Length", "Content-Type"],
+    max_age=600,
 )
+
+
+@app.middleware("http")
+async def add_owasp_security_headers(request: Request, call_next) -> Response:
+    """Agrega encabezados de seguridad HTTP recomendados por OWASP Secure Headers Project."""
+    response: Response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), payment=()"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    if request.url.path.startswith(settings.API_V1_STR):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+        response.headers["Pragma"] = "no-cache"
+    return response
 
 
 @app.get("/health", tags=["Health"])

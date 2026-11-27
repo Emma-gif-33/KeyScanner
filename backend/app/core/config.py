@@ -36,6 +36,19 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
+    # Lista explícita de orígenes permitidos para CORS (separados por coma) - Mitigación OWASP A05:2021 (CWE-942)
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Devuelve la lista sanitizada de dominios permitidos para CORS (sin comodines inseguros)."""
+        origins = [
+            origin.strip().rstrip("/")
+            for origin in self.CORS_ORIGINS.split(",")
+            if origin.strip() and origin.strip() != "*"
+        ]
+        return origins or ["http://localhost:3000"]
+
     TEMP_SCANS_BASE_DIR: str = TEMP_SCANS_DIR
 
     model_config = SettingsConfigDict(
