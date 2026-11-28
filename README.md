@@ -1,14 +1,17 @@
-# KeyScanner - Escáner de Claves Secretas y Dependencias Vulnerables
+<p align="center">
+  <img src="logo.png" alt="KeyScanner Logo" width="128" height="128" />
+</p>
+
+<h1 align="center">KeyScanner</h1>
 
 <p align="center">
-  <img src="logo.png" alt="KeyScanner Logo" width="160" />
+  <strong>Escáner de Claves Secretas y Dependencias Vulnerables</strong><br>
+  Plataforma analítica basada en FastAPI, React y PostgreSQL para auditar repositorios y archivos de código fuente, detectando de forma automatizada secretos expuestos y dependencias vulnerables.
 </p>
 
 <p align="center">
-  <img src="preview.png" alt="KeyScanner Web Application Preview" width="100%" />
+  <img src="preview.png" alt="KeyScanner Preview" width="100%" />
 </p>
-
-Plataforma analítica basada en una API RESTful con FastAPI y PostgreSQL para auditar repositorios y archivos de código fuente, detectando de forma automatizada secretos expuestos y dependencias vulnerables.
 
 Proyecto desarrollado para la materia de **Seguridad Informática** (UP Chiapas).
 
